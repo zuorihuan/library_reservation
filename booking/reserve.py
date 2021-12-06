@@ -2,7 +2,7 @@
 预约研讨室  http://202.120.82.2:8081/ClientWeb/xcus/ic2/Default.aspx
 '''
 import requests
-import traceback
+import time
 import pytesseract
 from PIL import Image
 from retrying import retry
@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
 
 # 配置tesseract运行环境
 # 需要安装tesseract，教程：https://blog.csdn.net/qq_31362767/article/details/107891185
-pytesseract.pytesseract.tesseract_cmd = r'D:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'E:\Tesseract-OCR\tesseract.exe'
 
 
 def retry_on_result_fuc(result):
@@ -33,13 +33,7 @@ class ReservePlatform(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._session.close()
 
-    def clear_image(self,image,threshold):
-        '''
-        图像降噪并进行灰度处理提高识别率
-        :param image:
-        :param threshold:
-        :return:
-        '''
+    def clear_image(self, image, threshold):    # 图像降噪并进行灰度处理提高识别率
         image = image.convert('RGB')
         width = image.size[0]
         height = image.size[1]
@@ -77,7 +71,7 @@ class ReservePlatform(object):
         :return:
         '''
         # 先请求图片资源
-        res1 = self._session.get("http://202.120.82.2:8081/ClientWeb/pro/page/image.aspx??")
+        res1 = self._session.get("http://202.120.82.2:8081/ClientWeb/pro/page/image.aspx?")
         res1.encoding = 'utf-8'
         with open("verification_code.jpg", 'wb') as file:  # 以byte形式将图片数据写入
             file.write(res1.content)
@@ -88,30 +82,24 @@ class ReservePlatform(object):
         logging.info(ocr)
         # 提取ocr中的数字
         number = "".join(list(filter(str.isdigit, ocr)))
-        if len(number)==4:
+        if len(number) == 4:
             logging.info(number)
             return True,number
         else:
             return False,number
 
     @retry(stop_max_attempt_number=5)
-    def login(self,id,pwd):
-        '''
-        当异常时重试，最大重试次数5次
-        :param id: 学号
-        :param pwd: 密码
-        :return:
-        '''
+    def login(self,id,pwd):     # 当异常时重试，最大重试次数5次
         res1 = self._session.get("http://202.120.82.2:8081/ClientWeb/xcus/ic2/Default.aspx")
         ocr = self.get_ocr()[1]
         # 开始验证登录
         r = self._session.post(
             url="http://202.120.82.2:8081/ClientWeb/pro/ajax/login.aspx",
             data={
-                "id":id,
-                "pwd":pwd,
-                "number":int(ocr),
-                "act":"dlogin"
+                "id": id,
+                "pwd": pwd,
+                "number": int(ocr),
+                "act": "dlogin"
             }
         )
         r_json = r.json()
@@ -124,10 +112,32 @@ class ReservePlatform(object):
 
     def main(self):
         try:
-            self.login("id","pwd")
-            # 这里就可以写预约与取消操作了
+            self.login("51215903102", "abc19990209.")
+            #这里就可以写预约与取消操作了
+            params = {
+                'dev_id': '3676497',
+                'lab_id': '3674920',
+                'kind_id': '3675179',
+                'type': 'dev',
+                'min_user': 5,
+                'max_user': 10,
+                'mb_list': '20150073,51215903102,51201300094,51215903080,51215903087',
+                'start': '2021-12-10 13:30',
+                'end': '2021-12-10 16:30',
+                'start_time': '1330',
+                'end_time': '1630',
+                'act': 'set_resv',
+                '_': str(round(time.time()*1000))
+            }
+            while 1:
+                re = self._session.get('http://202.120.82.2:8081/ClientWeb/pro/ajax/reserve.aspx', params=params)
+                if re.json()['msg'] == '操作成功':
+                    break
+                print(re.status_code)
+                print(re.url)
+                print(re.json()['msg'])
         except:
-            logging.error("登录失败")
+            logging.error("登录失败--")
             return False
 
 

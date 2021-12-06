@@ -60,12 +60,12 @@ def infolist_spider(usernm, passwd, imgPath):
 
 
         infodiv = driver.find_element_by_id("ext-gen5")
-        #print(infodiv.text)
+        # print(infodiv.text)
         tbody_1 = infodiv.find_element_by_tag_name("tbody")
 
         tbodys = tbody_1.find_elements_by_tag_name("tbody")
 
-        #第一个 table 里的 tdbody 是空行，从第二个开始是是通知列表
+        # 第一个 table 里的 tdbody 是空行，从第二个开始是是通知列表
         trs = tbodys[3].find_elements_by_tag_name("tr")
 
         infolist = []
