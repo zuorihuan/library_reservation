@@ -133,9 +133,9 @@ class ReservePlatform(object):
                 re = self._session.get('http://202.120.82.2:8081/ClientWeb/pro/ajax/reserve.aspx', params=params)
                 if re.json()['msg'] == '操作成功':
                     break
-                print(re.status_code)
-                print(re.url)
-                print(re.json()['msg'])
+                else:
+                    print(re.status_code)
+                    print(re.json()['msg'])
         except:
             logging.error("登录失败--")
             return False
