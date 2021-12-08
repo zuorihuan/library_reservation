@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
 
 # 配置tesseract运行环境
 # 需要安装tesseract，教程：https://blog.csdn.net/qq_31362767/article/details/107891185
-pytesseract.pytesseract.tesseract_cmd = r'E:\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
 
 
 def retry_on_result_fuc(result):
@@ -112,10 +112,12 @@ class ReservePlatform(object):
 
     def main(self):
         try:
-            self.login("51215903102", "abc19990209.")
+            # 登录
+            self.login("你的学号", "你的密码")
             #这里就可以写预约与取消操作了
+            # 参数
             params = {
-                'dev_id': '3676497',
+                'dev_id': '3676491',
                 'lab_id': '3674920',
                 'kind_id': '3675179',
                 'type': 'dev',
@@ -127,17 +129,17 @@ class ReservePlatform(object):
                 'start_time': '1330',
                 'end_time': '1630',
                 'act': 'set_resv',
-                '_': str(round(time.time()*1000))
+                '_': str(round(time.time()*1000))   # 当前时间戳
             }
-            while 1:
+            while True:
                 re = self._session.get('http://202.120.82.2:8081/ClientWeb/pro/ajax/reserve.aspx', params=params)
-                if re.json()['msg'] == '操作成功':
+                if re.json()['msg'] == "操作成功！":
+                    print("预约成功！")
                     break
                 else:
-                    print(re.status_code)
                     print(re.json()['msg'])
         except:
-            logging.error("登录失败--")
+            logging.error("登录失败=-=")
             return False
 
 
