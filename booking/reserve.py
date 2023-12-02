@@ -71,7 +71,9 @@ class ReservePlatform(object):
         :return:
         '''
         # 先请求图片资源
-        res1 = self._session.get("http://202.120.82.2:8081/ClientWeb/pro/page/image.aspx?")
+        codeUrl = f"https://portal1.ecnu.edu.cn/cas/code?{random.random()}"
+        res1 = self._session.get(codeUrl)
+        return
         res1.encoding = 'utf-8'
         with open("verification_code.jpg", 'wb') as file:  # 以byte形式将图片数据写入
             file.write(res1.content)
@@ -90,7 +92,7 @@ class ReservePlatform(object):
 
     @retry(stop_max_attempt_number=5)
     def login(self,id,pwd):     # 当异常时重试，最大重试次数5次
-        res1 = self._session.get("http://202.120.82.2:8081/ClientWeb/xcus/ic2/Default.aspx")
+        # res1 = self._session.get("http://202.120.82.2:8081/ClientWeb/xcus/ic2/Default.aspx")
         ocr = self.get_ocr()[1]
         # 开始验证登录
         r = self._session.post(
@@ -113,7 +115,7 @@ class ReservePlatform(object):
     def main(self):
         try:
             # 登录
-            self.login("你的学号", "你的密码")
+            self.login("51215903102", "abc19990209.")
             #这里就可以写预约与取消操作了
             # 参数
             params = {
